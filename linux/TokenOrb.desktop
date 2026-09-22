@@ -2,7 +2,7 @@
 Type=Application
 Version=1.0
 Name=TokenOrb
-Comment=桌面额度监控工具
+Comment=Codex 额度监控工具
 Exec=tokenorb
 TryExec=tokenorb
 Icon=tokenorb

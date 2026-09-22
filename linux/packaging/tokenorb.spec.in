@@ -1,7 +1,7 @@
 Name: tokenorb
 Version: @VERSION@
 Release: 1%{?dist}
-Summary: TokenOrb desktop quota monitor
+Summary: TokenOrb Codex quota monitor
 License: MIT
 URL: https://github.com/chenxulin/TokenOrb
 Source0: tokenorb-source.tar.gz
@@ -10,7 +10,7 @@ Requires: python3 >= 3.10
 Requires: python3-qt5
 
 %description
-A small desktop orb for local quota monitoring.
+A small desktop orb for monitoring Codex quota.
 
 %prep
 %setup -q -n tokenorb-source

@@ -10,10 +10,6 @@ WORKFLOW_FILE = LINUX_ROOT.parent / ".github" / "workflows" / "linux-packages.ym
 RELEASE_WORKFLOW_FILE = LINUX_ROOT.parent / ".github" / "workflows" / "release.yml"
 
 
-def _forbidden_public_token() -> str:
-    return "co" + "dex"
-
-
 class TokenOrbPackagingTests(unittest.TestCase):
     def test_desktop_entry_uses_installable_launcher_and_icon_names(self):
         parser = configparser.ConfigParser(interpolation=None, strict=False)
@@ -72,26 +68,16 @@ class TokenOrbPackagingTests(unittest.TestCase):
         self.assertIn("sha256sum \\", linux_builder)
         self.assertIn("TokenOrb-Linux-x86_64.deb", linux_builder)
 
-    def test_public_packaging_files_use_neutral_text(self):
-        files = [
-            DESKTOP_FILE,
-            LINUX_ROOT / "install_linux.sh",
-            PACKAGING_ROOT / "INSTALL.md",
-            PACKAGING_ROOT / "TokenOrb.desktop",
-            PACKAGING_ROOT / "tokenorb-user-launcher.in",
-            PACKAGING_ROOT / "TokenOrb.spec",
-            PACKAGING_ROOT / "build_deb.sh",
-            PACKAGING_ROOT / "build_rpm.sh",
-            PACKAGING_ROOT / "build_appimage.sh",
-            PACKAGING_ROOT / "build_linux.sh",
-            PACKAGING_ROOT / "debian/control.in",
-            PACKAGING_ROOT / "tokenorb.spec.in",
-            WORKFLOW_FILE,
-        ]
-        forbidden = _forbidden_public_token()
-        for path in files:
-            content = path.read_text(encoding="utf-8").lower()
-            self.assertNotIn(forbidden, content, str(path))
+    def test_public_packaging_files_use_codex_text(self):
+        desktop = DESKTOP_FILE.read_text(encoding="utf-8").lower()
+        install = (PACKAGING_ROOT / "INSTALL.md").read_text(encoding="utf-8").lower()
+        deb_control = (PACKAGING_ROOT / "debian/control.in").read_text(encoding="utf-8").lower()
+        rpm_spec = (PACKAGING_ROOT / "tokenorb.spec.in").read_text(encoding="utf-8").lower()
+
+        self.assertIn("codex", desktop)
+        self.assertIn("codex", install)
+        self.assertIn("codex", deb_control)
+        self.assertIn("codex", rpm_spec)
 
     def test_linux_workflow_builds_all_public_artifacts(self):
         workflow = WORKFLOW_FILE.read_text(encoding="utf-8")
@@ -119,15 +105,14 @@ class TokenOrbPackagingTests(unittest.TestCase):
         self.assertNotIn("collect_submodules", spec)
         self.assertIn('"PyQt5.sip"', spec)
 
-    def test_user_visible_linux_messages_use_neutral_text(self):
+    def test_user_visible_linux_messages_use_codex_text(self):
         app_text = (LINUX_ROOT / "tokenorb_app.py").read_text(encoding="utf-8").lower()
         core_text = (LINUX_ROOT / "tokenorb_core.py").read_text(encoding="utf-8").lower()
-        forbidden = _forbidden_public_token()
 
-        self.assertNotIn(f"{forbidden} 额度", app_text)
-        self.assertNotIn(f"{forbidden} 剩余额度", app_text)
-        self.assertNotIn(f"{forbidden} 刷新", core_text)
-        self.assertNotIn(f"{forbidden} 实时", core_text)
+        self.assertIn("codex 额度", app_text)
+        self.assertIn("codex 剩余额度", app_text)
+        self.assertIn("codex 刷新", core_text)
+        self.assertIn("codex 实时", core_text)
 
 
 if __name__ == "__main__":

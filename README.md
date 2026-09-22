@@ -1,12 +1,12 @@
 # TokenOrb v1.6.0
 
-TokenOrb 是一个实时监控本地服务剩余额度的悬浮球小软件。
+TokenOrb 是一个实时监控 Codex 剩余额度的悬浮球小软件。
 
 ## Windows 安装
 
 1. 从右侧 Release 下载 `TokenOrb-Windows.msi`（推荐）进行安装，也可直接运行免安装的 `TokenOrb-Windows.exe`。
 2. 启动 TokenOrb。
-3. TokenOrb 会在配套桌面服务启动时出现，并在服务关闭后退出悬浮球界面。
+3. TokenOrb 会在 Codex 桌面应用启动时出现，并在 Codex 关闭后退出悬浮球界面。
 
 ## macOS 安装
 
@@ -17,7 +17,7 @@ TokenOrb 是一个实时监控本地服务剩余额度的悬浮球小软件。
 5. 向下找到“安全性”区域，找到与 `TokenOrb` 相关的拦截提示，点击旁边的放行按钮（通常显示为“仍要打开”），然后使用 Touch ID 或输入 Mac 登录密码，并再次确认打开。
 6. 返回“应用程序”文件夹启动 `TokenOrb`。系统会记住这次选择，以后可以直接双击打开。仅第一次安装需要手动允许。
 
-macOS 客户端支持 Apple Silicon 与 Intel、菜单栏、桌面悬浮球、实时额度、外观设置、账号切换重连和进程级跟随本地服务启动/退出。轻量 watcher 在等待期间保留菜单栏诊断入口。
+macOS 客户端支持 Apple Silicon 与 Intel、菜单栏、桌面悬浮球、实时额度、外观设置、账号切换重连和进程级跟随 Codex 启动/退出。轻量 watcher 在等待期间保留菜单栏诊断入口。
 
 ## Linux 安装
 
@@ -31,7 +31,7 @@ Linux 版本提供 Debian/Ubuntu、Fedora/RHEL/openSUSE 和 AppImage 安装包�
 从源码运行时，Ubuntu 可先安装 `python3-pyqt5`，再执行
 `./linux/install_linux.sh` 将 TokenOrb 注册到当前用户的应用菜单。
 
-Linux 端通过本地服务接口获取实时额度；如果实时接口暂时不可用，会从
+Linux 端通过 Codex app-server 接口获取实时额度；如果实时接口暂时不可用，会从
 本地会话目录读取快照。可用
 `./linux/run_tokenorb.sh --demo` 查看演示悬浮球。
 
@@ -47,15 +47,15 @@ Linux 端通过本地服务接口获取实时额度；如果实时接口暂时�
 
 ## 功能
 
-- **跟随本地服务启动/退出**
-- **实时监控额度、订阅套餐类型、下轮刷新时间**
-- **切换本地账号后自动重连并刷新当前账号额度**
+- **跟随 Codex 启动/退出**
+- **实时监控Codex额度、订阅套餐类型、下轮刷新时间**
+- **切换 Codex 账号后自动重连并刷新当前账号额度**
 - **自定义悬浮球大小、主题颜色、数字样式和 30–180 FPS 动画帧率**
 - **显示/隐藏悬浮球**
 
 ## 系统要求
 
 - Windows 10 / 11，或 macOS 13 及更新版本
-- 已安装并登录配套桌面服务；关闭跟随功能后，也可仅配合本地命令行工具使用
+- 已安装并登录 Codex 桌面应用；关闭跟随功能后，也可仅配合 Codex CLI 使用
 - Windows 版本需要系统自带的 .NET Framework 4.x
 - 从源码构建 macOS 版本需要 Apple Command Line Tools

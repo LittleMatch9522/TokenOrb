@@ -188,14 +188,14 @@ class DetailDialog(QDialog):
 
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle(f"{PRODUCT_NAME} - 额度")
+        self.setWindowTitle(f"{PRODUCT_NAME} - Codex 额度")
         self.setMinimumWidth(390)
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
         self._snapshot: Optional[QuotaSnapshot] = None
         self._status = "正在准备…"
         self._connected = False
 
-        self.title_label = QLabel("TokenOrb 剩余额度")
+        self.title_label = QLabel("Codex 剩余额度")
         self.title_label.setStyleSheet("font-size: 20px; font-weight: 700; color: #17324D;")
         self.status_label = QLabel()
         self.status_label.setWordWrap(True)
@@ -261,7 +261,7 @@ class DetailDialog(QDialog):
         self._render_card(self.secondary, self._snapshot.secondary if self._snapshot else None)
         self.credits_label.setText(credits_text(self._snapshot.credits if self._snapshot else None))
         self.plan_label.setText(plan_name(self._snapshot.plan_type if self._snapshot else None))
-        self.source_label.setText(self._snapshot.source if self._snapshot else "等待额度数据")
+        self.source_label.setText(self._snapshot.source if self._snapshot else "等待 Codex 额度数据")
         self.captured_label.setText(
             self._snapshot.captured_at.astimezone().strftime("%Y-%m-%d %H:%M:%S")
             if self._snapshot
@@ -296,7 +296,7 @@ class TokenOrbApp:
         self.settings = Settings()
         self.reader = LocalSnapshotReader()
         self.snapshot: Optional[QuotaSnapshot] = None
-        self.status = "正在读取本地会话…"
+        self.status = "正在读取 Codex 会话…"
         self.connected = False
         self.signals = RuntimeSignals()
         self.signals.snapshot.connect(self._apply_snapshot)

@@ -5,5 +5,5 @@ Priority: optional
 Architecture: amd64
 Depends: python3 (>= 3.10), python3-pyqt5
 Maintainer: TokenOrb contributors <tokenorb@users.noreply.github.com>
-Description: TokenOrb desktop quota monitor
- A small desktop orb for local quota monitoring.
+Description: TokenOrb Codex quota monitor
+ A small desktop orb for monitoring Codex quota.

@@ -372,7 +372,7 @@ def reset_countdown_text(
         return ""
     remaining = (reset - current).total_seconds()
     if remaining <= 0:
-        return "等待本地服务刷新"
+        return "等待 Codex 刷新"
     seconds = int(remaining)
     days, seconds = divmod(seconds, 86_400)
     hours, seconds = divmod(seconds, 3_600)
@@ -451,7 +451,9 @@ def resolve_codex_executable(environment: Optional[dict[str, str]] = None) -> st
         path = Path(candidate).expanduser()
         if path.is_file() and os.access(path, os.X_OK):
             return str(path)
-    raise CodexExecutableNotFound("未找到本地服务命令，请检查配置或 PATH。")
+    raise CodexExecutableNotFound(
+        "未找到 Codex CLI。请安装并登录 Codex 桌面应用，或设置 CODEX_QUOTA_CODEX_PATH。"
+    )
 
 
 @dataclass(frozen=True)
@@ -597,14 +599,14 @@ class CodexAppServerClient:
                 failures = 0 if live else failures + 1
             except Exception as exc:  # noqa: BLE001 - boundary around external process
                 failures += 1
-                self._diagnostic("本地服务", str(exc))
+                self._diagnostic("Codex app-server", str(exc))
             if self._stop.is_set():
                 break
             retry_index = min(failures, len(self.retry_delays)) - 1
             delay = self.retry_delays[max(0, retry_index)]
             fallback = failures >= 4
             self._status(
-                f"{'使用本地快照；' if fallback else '实时连接失败，'}{int(delay)} 秒后重试",
+                f"{'使用本地快照；' if fallback else 'Codex 实时连接失败，'}{int(delay)} 秒后重试",
                 False,
                 fallback,
             )
@@ -638,7 +640,7 @@ class CodexAppServerClient:
         pending_since = 0.0
         try:
             self._send(process, initialize_request("token_orb_linux", "1.6.0"))
-            self._status("正在连接实时接口…", False)
+            self._status("正在连接 Codex 实时接口…", False)
             while not self._stop.is_set():
                 command = self._get_command()
                 if command == "restart":
@@ -674,7 +676,7 @@ class CodexAppServerClient:
                         )
                     self._send(process, {"method": "initialized", "params": {}})
                     initialized = True
-                    self._status("实时接口已连接，正在读取额度…", False)
+                    self._status("Codex 实时接口已连接，正在读取额度…", False)
                     pending_id = next_id
                     next_id += 1
                     pending_since = time.monotonic()
@@ -686,7 +688,7 @@ class CodexAppServerClient:
                     snapshot = (
                         parse_rate_limits(
                             limits,
-                            source="本地实时接口",
+                            source="Codex 实时接口",
                             is_live=True,
                         )
                         if limits is not None
@@ -705,7 +707,7 @@ class CodexAppServerClient:
                     if limits is not None:
                         snapshot = parse_rate_limits(
                             limits,
-                            source="本地实时推送",
+                            source="Codex 实时推送",
                             is_live=True,
                         )
                         if snapshot is not None and self.on_snapshot is not None:
