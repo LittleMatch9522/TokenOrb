@@ -1,0 +1,130 @@
+name: Build TokenOrb Linux packages
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "linux/**"
+      - "README.md"
+      - ".github/workflows/linux-packages.yml"
+      - ".github/workflows/release.yml"
+  push:
+    branches:
+      - master
+    paths:
+      - "linux/**"
+      - "README.md"
+      - ".github/workflows/linux-packages.yml"
+      - ".github/workflows/release.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Install test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y desktop-file-utils python3-pyqt5
+
+      - name: Run Linux tests
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          python3 -m unittest discover -s linux/tests -p 'test_*.py'
+          python3 -m py_compile linux/tokenorb_core.py linux/tokenorb_app.py
+          desktop-file-validate linux/TokenOrb.desktop linux/packaging/TokenOrb.desktop
+          git diff --check
+
+  build-deb:
+    runs-on: ubuntu-22.04
+    needs: test
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Install Debian build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y desktop-file-utils dpkg-dev python3-pyqt5
+
+      - name: Build Debian package
+        run: |
+          bash linux/packaging/build_deb.sh dist
+          dpkg-deb --contents dist/TokenOrb-Linux-x86_64.deb
+
+      - name: Upload Debian package
+        uses: actions/upload-artifact@v7
+        with:
+          name: TokenOrb-Linux-deb
+          path: dist/TokenOrb-Linux-x86_64.deb
+          if-no-files-found: error
+
+  build-rpm:
+    runs-on: ubuntu-22.04
+    needs: test
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Build RPM in Fedora
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/workspace" \
+            -w /workspace \
+            fedora:latest \
+            bash -euxo pipefail -c '
+              dnf -y install desktop-file-utils findutils gzip rpm-build tar
+              bash linux/packaging/build_rpm.sh dist
+              rpm -qlp dist/TokenOrb-Linux-x86_64.rpm
+            '
+          sudo chown -R "$(id -u):$(id -g)" dist
+
+      - name: Upload RPM package
+        uses: actions/upload-artifact@v7
+        with:
+          name: TokenOrb-Linux-rpm
+          path: dist/TokenOrb-Linux-x86_64.rpm
+          if-no-files-found: error
+
+  build-appimage:
+    runs-on: ubuntu-22.04
+    needs: test
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Install AppImage build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y desktop-file-utils python3-pyqt5 python3-venv wget xvfb
+          python3 -m venv --system-site-packages "$RUNNER_TEMP/tokenorb-venv"
+          "$RUNNER_TEMP/tokenorb-venv/bin/pip" install --quiet pyinstaller
+          wget -q -O "$RUNNER_TEMP/appimagetool-x86_64.AppImage" \
+            "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
+          chmod 0755 "$RUNNER_TEMP/appimagetool-x86_64.AppImage"
+
+      - name: Build AppImage
+        env:
+          PYINSTALLER: ${{ runner.temp }}/tokenorb-venv/bin/pyinstaller
+          APPIMAGETOOL: ${{ runner.temp }}/appimagetool-x86_64.AppImage
+        run: |
+          bash linux/packaging/build_appimage.sh dist
+          dist/TokenOrb-Linux-x86_64.AppImage --help
+          set +e
+          xvfb-run -a timeout --signal=TERM 8s dist/TokenOrb-Linux-x86_64.AppImage --demo
+          status=$?
+          set -e
+          test "$status" = 124 || test "$status" = 143
+
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v7
+        with:
+          name: TokenOrb-Linux-AppImage
+          path: dist/TokenOrb-Linux-x86_64.AppImage
+          if-no-files-found: error

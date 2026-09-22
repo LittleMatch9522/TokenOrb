@@ -1,0 +1,49 @@
+Name: tokenorb
+Version: @VERSION@
+Release: 1%{?dist}
+Summary: TokenOrb desktop quota monitor
+License: MIT
+URL: https://github.com/chenxulin/TokenOrb
+Source0: tokenorb-source.tar.gz
+BuildArch: x86_64
+Requires: python3 >= 3.10
+Requires: python3-qt5
+
+%description
+A small desktop orb for local quota monitoring.
+
+%prep
+%setup -q -n tokenorb-source
+
+%build
+
+%install
+install -d %{buildroot}%{_bindir}
+install -d %{buildroot}/usr/lib/tokenorb/assets
+install -d %{buildroot}%{_datadir}/applications
+install -d %{buildroot}%{_datadir}/icons/hicolor/scalable/apps
+install -m 0755 tokenorb-launcher %{buildroot}%{_bindir}/tokenorb
+install -m 0644 tokenorb_app.py tokenorb_core.py %{buildroot}/usr/lib/tokenorb/
+install -m 0644 assets/tokenorb.svg %{buildroot}/usr/lib/tokenorb/assets/tokenorb.svg
+install -m 0644 TokenOrb.desktop %{buildroot}%{_datadir}/applications/TokenOrb.desktop
+install -m 0644 assets/tokenorb.svg %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/tokenorb.svg
+
+%post
+if command -v update-desktop-database >/dev/null 2>&1; then
+    update-desktop-database %{_datadir}/applications >/dev/null 2>&1 || :
+fi
+
+%postun
+if command -v update-desktop-database >/dev/null 2>&1; then
+    update-desktop-database %{_datadir}/applications >/dev/null 2>&1 || :
+fi
+
+%files
+%license LICENSE
+%{_bindir}/tokenorb
+%dir /usr/lib/tokenorb
+/usr/lib/tokenorb/tokenorb_app.py
+/usr/lib/tokenorb/tokenorb_core.py
+/usr/lib/tokenorb/assets/tokenorb.svg
+%{_datadir}/applications/TokenOrb.desktop
+%{_datadir}/icons/hicolor/scalable/apps/tokenorb.svg

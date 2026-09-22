@@ -33,3 +33,7 @@ Thumbs.db
 Desktop.ini
 
 AGENTS.md
+
+# Python caches
+__pycache__/
+*.py[cod]

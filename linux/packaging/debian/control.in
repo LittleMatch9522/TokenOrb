@@ -1,0 +1,9 @@
+Package: tokenorb
+Version: @VERSION@
+Section: utils
+Priority: optional
+Architecture: amd64
+Depends: python3 (>= 3.10), python3-pyqt5
+Maintainer: TokenOrb contributors <tokenorb@users.noreply.github.com>
+Description: TokenOrb desktop quota monitor
+ A small desktop orb for local quota monitoring.
